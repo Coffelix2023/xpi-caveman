@@ -60,7 +60,10 @@ function mockCtx(branch: EntryLike[] = []) {
       getBranch: () => branch,
     },
     ui: {
-      select: vi.fn(async () => undefined),
+      select: vi.fn(
+        async (_title: string, _opts: string[]): Promise<string | undefined> =>
+          undefined,
+      ),
       setStatus: vi.fn(),
       notify: (message: string, type?: "info" | "warning" | "error") =>
         notifies.push({
@@ -281,5 +284,53 @@ describe("xpiCaveman wiring", () => {
     );
     await pi.commands.get("xpi-caveman")!.handler("full", ctx);
     expect(ctx.notifies.at(-1)?.message).toContain("共存模式");
+  });
+
+  it("面板选「查看统计」:聚合 branch 并 notify 文本块(T6)", async () => {
+    const branch = [
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          usage: {
+            output: 10,
+            cost: {
+              total: 0.01,
+            },
+          },
+        },
+      },
+      {
+        customType: "caveman-mode",
+        type: "custom",
+        data: {
+          mode: "full",
+        },
+      },
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          usage: {
+            output: 20,
+            cost: {
+              total: 0.02,
+            },
+          },
+        },
+      },
+    ];
+    const ctx = mockCtx(branch);
+    await handler("session_start")(
+      {
+        type: "session_start",
+      },
+      ctx,
+    );
+    ctx.ui.select.mockResolvedValueOnce("查看统计");
+    await pi.commands.get("xpi-caveman")!.handler("", ctx);
+    expect(ctx.notifies.at(-1)?.message).toContain("caveman stats");
+    expect(ctx.notifies.at(-1)?.message).toContain("total");
+    expect(ctx.notifies.at(-1)?.message).toContain("$0.03");
   });
 });

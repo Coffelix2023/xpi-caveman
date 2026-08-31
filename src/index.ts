@@ -1,7 +1,6 @@
 /**
  * xpi-caveman — Pi 扩展:六档压缩回复模式(PLAN v0.2)。
- * /xpi-caveman 面板 + before_agent_start 注入 + footer 芯片 + session 持久化 + setup 自检。
- * stats(T6)待接入。
+ * /xpi-caveman 面板 + before_agent_start 注入 + footer 芯片 + session 持久化 + setup 自检 + stats。
  */
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { type FooterCtx, mountFooter } from "./lib/footer.js";
@@ -15,6 +14,7 @@ import {
   restoreMode,
   writeConfig,
 } from "./lib/state.js";
+import { aggregateByMode, renderStats } from "./lib/stats.js";
 
 const VERSION = "0.2.0";
 
@@ -45,6 +45,7 @@ function footerCtx(ctx: ExtensionContext): FooterCtx {
 export default function xpiCaveman(pi: ExtensionAPI): void {
   let mode: CavemanMode = "off";
   let isActive = false;
+  let startMode: CavemanMode = "off"; // D7:会话起始档(恢复值),stats 分桶兜底。
   let coexist = false; // D8:共存让位 → 只做面板+指示灯,不注入规则。
   let footer: ReturnType<typeof mountFooter> | undefined;
   // 延迟接线信号:setMode 在 session_start 前也可能被调(命令先于事件),footer 就绪后补挂。
@@ -77,6 +78,7 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
   pi.on("session_start", async (_event, ctx) => {
     // D3/D9 优先级:session entry(含显式 off)> 跨会话默认(env > config)> off。
     mode = restoreMode(ctx.sessionManager.getBranch()) ?? effectiveDefaultMode();
+    startMode = mode; // D7:会话起始档快照,stats 首个 mode entry 之前的 usage 归入此桶。
     // D8:检测旧 skill,未选择时弹 setup 面板;coexist 决定注入层是否拦截。
     coexist = (await runSetup(ctx)).coexist;
     attachFooter(ctx);
@@ -115,7 +117,8 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
         if (idx >= 0 && idx < MODES.length) {
           applyMode(MODES[idx]!, ctx);
         } else if (picked === "查看统计") {
-          ctx.ui.notify("stats: T6 接入后可用");
+          const result = aggregateByMode(ctx.sessionManager.getBranch(), startMode);
+          ctx.ui.notify(renderStats(result));
         } else if (picked === "设为跨会话默认档") {
           const ok = writeConfig({
             coexist: readConfig().coexist,
