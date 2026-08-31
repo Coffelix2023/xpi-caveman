@@ -5,6 +5,7 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { type FooterCtx, mountFooter } from "./lib/footer.js";
 import { type CavemanMode, MODE_LABELS, MODES } from "./lib/modes.js";
+import { PANEL_DEFAULT, PANEL_STATS, pickFromPanel } from "./lib/panel.js";
 import { loadCavemanRules } from "./lib/rules.js";
 import { runSetup } from "./lib/setup.js";
 import {
@@ -16,20 +17,6 @@ import {
 import { aggregateByMode, renderStats } from "./lib/stats.js";
 
 const VERSION = "0.2.0";
-
-/** 面板选项文案(D5 单层平铺:6 档 + 分隔 + 2 操作)。● 标记当前档(select 类型无 preselect)。 */
-function panelOptions(current: CavemanMode): string[] {
-  const modeItems = MODES.map(
-    (m) =>
-      `${m === current ? "● " : "  "}${MODE_LABELS[m]}${m === "off" ? " (关闭)" : ""}`,
-  );
-  return [
-    ...modeItems,
-    "─".repeat(16),
-    "查看统计",
-    "设为跨会话默认档",
-  ];
-}
 
 /** mountFooter 实际依赖的最小上下文面(真实 ExtensionContext 结构兼容)。 */
 function footerCtx(ctx: ExtensionContext): FooterCtx {
@@ -108,17 +95,22 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
       const parts = args.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
       if (parts.length === 0) {
-        // D5:单层 select 平铺,8 项;当前档以 ● 标记(0.84.4 select 无 preselect 选项)。
-        const options = panelOptions(mode);
-        const picked = await ctx.ui.select("caveman mode", options);
+        const picked = await pickFromPanel(
+          {
+            hasUI: ctx.hasUI,
+            custom: (factory, options) => ctx.ui.custom(factory, options),
+            notify: (message, type) => ctx.ui.notify(message, type),
+          },
+          mode,
+        );
         if (!picked) return;
-        const idx = options.indexOf(picked);
-        if (idx >= 0 && idx < MODES.length) {
-          applyMode(MODES[idx]!, ctx);
-        } else if (picked === "查看统计") {
+        const asMode = MODES.find((m) => m === picked);
+        if (asMode) {
+          applyMode(asMode, ctx);
+        } else if (picked === PANEL_STATS) {
           const result = aggregateByMode(ctx.sessionManager.getBranch(), startMode);
           ctx.ui.notify(renderStats(result));
-        } else if (picked === "设为跨会话默认档") {
+        } else if (picked === PANEL_DEFAULT) {
           const ok = updateConfig({
             defaultMode: mode,
           });

@@ -60,6 +60,7 @@ function mockCtx(branch: EntryLike[] = []) {
       getBranch: () => branch,
     },
     ui: {
+      custom: vi.fn(async (): Promise<string | undefined> => undefined),
       select: vi.fn(
         async (_title: string, _opts: string[]): Promise<string | undefined> =>
           undefined,
@@ -331,7 +332,7 @@ describe("xpiCaveman wiring", () => {
       },
       ctx,
     );
-    ctx.ui.select.mockResolvedValueOnce("查看统计");
+    ctx.ui.custom.mockResolvedValueOnce("stats");
     await pi.commands.get("xpi-caveman")!.handler("", ctx);
     expect(ctx.notifies.at(-1)?.message).toContain("caveman stats");
     expect(ctx.notifies.at(-1)?.message).toContain("total");
