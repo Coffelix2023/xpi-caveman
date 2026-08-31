@@ -334,6 +334,8 @@ describe("xpiCaveman wiring", () => {
     );
     ctx.ui.custom.mockResolvedValueOnce("stats");
     await pi.commands.get("xpi-caveman")!.handler("", ctx);
+    expect(ctx.ui.custom).toHaveBeenCalled();
+    expect(ctx.ui.select).not.toHaveBeenCalled();
     expect(ctx.notifies.at(-1)?.message).toContain("caveman stats");
     expect(ctx.notifies.at(-1)?.message).toContain("total");
     expect(ctx.notifies.at(-1)?.message).toContain("$0.03");

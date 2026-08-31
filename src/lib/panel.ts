@@ -116,6 +116,8 @@ export async function pickFromPanel(
 
   return ui.custom<string | undefined>((tui, theme, _kb, done) => {
     const items = buildPanelItems(current);
+    const sep = items.find((i) => i.value === PANEL_SEP);
+    if (sep) sep.label = theme.fg("dim", SEP_LABEL);
     let lastIndex = initialFocusIndex(current);
     applyFocusHint(items, items[lastIndex]?.value ?? current);
 
