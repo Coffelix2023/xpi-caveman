@@ -77,14 +77,14 @@ export function effectiveDefaultMode(
   return config.defaultMode;
 }
 
-/** 从 session entries 倒序找最新 caveman-mode entry 恢复档位(兼容 fx-cn)。 */
+/** 从 session entries 倒序找最新 caveman-mode entry;无 entry 返回 null(调用方回退跨会话默认)。兼容 fx-cn。 */
 export function restoreMode(
   entries: readonly {
     type: string;
     customType?: string;
     data?: unknown;
   }[],
-): CavemanMode {
+): CavemanMode | null {
   for (const e of [
     ...entries,
   ].reverse()) {
@@ -99,5 +99,5 @@ export function restoreMode(
       if (typeof mode === "string") return normalizeMode(mode);
     }
   }
-  return "off";
+  return null;
 }

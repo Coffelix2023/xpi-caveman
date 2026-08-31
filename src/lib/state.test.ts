@@ -180,8 +180,8 @@ describe("restoreMode", () => {
     ).toBe("ultra");
   });
 
-  it("无 entry / 无关 entry 回 off", () => {
-    expect(restoreMode([])).toBe("off");
+  it("无 entry / 无关 entry 返回 null(调用方回退默认档)", () => {
+    expect(restoreMode([])).toBeNull();
     expect(
       restoreMode([
         {
@@ -192,7 +192,7 @@ describe("restoreMode", () => {
           },
         },
       ]),
-    ).toBe("off");
+    ).toBeNull();
   });
 
   it("fx-cn 兼容映射 lite-zh", () => {
@@ -223,6 +223,6 @@ describe("restoreMode", () => {
           type: "custom",
         },
       ]),
-    ).toBe("off");
+    ).toBeNull();
   });
 });
