@@ -18,8 +18,6 @@ A [Pi coding agent](https://github.com/badlogic/pi-mono) extension ported from t
 
 ## Install
 
-## Install
-
 ```bash
 pi install git:github.com/Coffelix2023/xpi-caveman
 ```
