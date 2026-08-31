@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { configPath } from "./lib/state.js";
+import { configPath, readConfig } from "./lib/state.js";
 
 type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
 
@@ -219,6 +219,10 @@ describe("xpiCaveman wiring", () => {
     expect(ctx.notifies.at(-1)?.type).toBe("warning");
     await pi.commands.get("xpi-caveman")!.handler("default lite-zh", ctx);
     expect(ctx.notifies.at(-1)?.message).toContain("默认档已保存: LITE-ZH");
+    expect(readConfig()).toMatchObject({
+      defaultMode: "lite-zh",
+      setupDone: true,
+    });
     await pi.commands.get("xpi-caveman")!.handler("bogus", ctx);
     expect(ctx.notifies.at(-1)?.type).toBe("warning");
   });

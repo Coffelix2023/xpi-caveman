@@ -1,10 +1,10 @@
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { detectLegacySkills } from "./detect.js";
 import { runSetup } from "./setup.js";
-import { configPath } from "./state.js";
+import { configPath, readConfig } from "./state.js";
 
 let root: string | undefined;
 let env: NodeJS.ProcessEnv = {};
@@ -54,6 +54,7 @@ describe("runSetup", () => {
       message: string;
       type?: string;
     }[] = [];
+    const select = vi.fn(async (): Promise<string | undefined> => picked);
     return {
       hasUI,
       ui: {
@@ -62,28 +63,35 @@ describe("runSetup", () => {
             message,
             type,
           }),
-        select: async (): Promise<string | undefined> => picked,
+        select,
       },
       notifies,
+      select,
     };
   }
 
   it("未命中目录:不弹面板", async () => {
-    const result = await runSetup(mockCtx(), env, fakeHome(false, false));
+    const ctx = mockCtx();
+    const result = await runSetup(ctx, env, fakeHome(false, false));
     expect(result).toEqual({
       coexist: false,
       prompted: false,
     });
+    expect(ctx.select).not.toHaveBeenCalled();
   });
 
   it("命中目录 + 首次:弹面板;Esc 取消不持久化(下次再弹)", async () => {
     const home = fakeHome(true, false);
-    const first = await runSetup(mockCtx(), env, home); // picked=undefined → Esc
+    const firstCtx = mockCtx();
+    const first = await runSetup(firstCtx, env, home); // picked=undefined → Esc
     expect(first.prompted).toBe(false);
-    expect(await runSetup(mockCtx(), env, home)).toEqual({
+    expect(firstCtx.select).toHaveBeenCalledTimes(1);
+    const secondCtx = mockCtx();
+    expect(await runSetup(secondCtx, env, home)).toEqual({
       coexist: false,
       prompted: false,
     });
+    expect(secondCtx.select).toHaveBeenCalledTimes(1);
   });
 
   it("选择接管:coexist=false + setupDone 持久化,不再重复弹", async () => {
@@ -94,10 +102,13 @@ describe("runSetup", () => {
       prompted: true,
     });
     expect(ctx.notifies.at(-1)?.message).toContain("mv");
-    expect(await runSetup(mockCtx(), env, home)).toEqual({
+    expect(readConfig(env).setupDone).toBe(true);
+    const again = mockCtx();
+    expect(await runSetup(again, env, home)).toEqual({
       coexist: false,
       prompted: false,
     });
+    expect(again.select).not.toHaveBeenCalled();
   });
 
   it("选择共存:coexist=true 持久化,不重复弹", async () => {
@@ -108,10 +119,13 @@ describe("runSetup", () => {
       coexist: true,
       prompted: true,
     });
-    expect(await runSetup(mockCtx(), env, home)).toEqual({
+    expect(readConfig(env).setupDone).toBe(true);
+    const again = mockCtx();
+    expect(await runSetup(again, env, home)).toEqual({
       coexist: true,
       prompted: false,
     });
+    expect(again.select).not.toHaveBeenCalled();
   });
 
   it("无 UI(hasUI=false):降级 notify 不弹面板,不持久化", async () => {
@@ -122,6 +136,7 @@ describe("runSetup", () => {
       prompted: false,
     });
     expect(ctx.notifies.at(-1)?.type).toBe("warning");
+    expect(ctx.select).not.toHaveBeenCalled();
   });
 
   it("config 预置 setupDone:true:命中目录也不弹", async () => {
@@ -138,9 +153,11 @@ describe("runSetup", () => {
         setupDone: true,
       }),
     );
-    expect(await runSetup(mockCtx(), env, home)).toEqual({
+    const ctx = mockCtx();
+    expect(await runSetup(ctx, env, home)).toEqual({
       coexist: false,
       prompted: false,
     });
+    expect(ctx.select).not.toHaveBeenCalled();
   });
 });

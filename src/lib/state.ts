@@ -34,16 +34,22 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): CavemanConfig 
   try {
     const raw = readFileSync(configPath(env), "utf8");
     const parsed = JSON.parse(raw) as {
-      defaultMode?: unknown;
       coexist?: unknown;
+      defaultMode?: unknown;
+      setupDone?: unknown;
     };
     const defaultMode =
       typeof parsed.defaultMode === "string"
         ? normalizeMode(parsed.defaultMode)
         : "off";
     return {
-      defaultMode,
       coexist: parsed.coexist === true,
+      defaultMode,
+      ...(parsed.setupDone === true
+        ? {
+            setupDone: true,
+          }
+        : {}),
     };
   } catch {
     return {
@@ -67,6 +73,20 @@ export function writeConfig(
   } catch {
     return false;
   }
+}
+
+/** 合并补丁写入;先读再 spread,避免调用方漏带 setupDone。 */
+export function updateConfig(
+  patch: Partial<CavemanConfig>,
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return writeConfig(
+    {
+      ...readConfig(env),
+      ...patch,
+    },
+    env,
+  );
 }
 
 /** 生效默认档:env XPI_CAVEMAN_DEFAULT_MODE > config.defaultMode > off。 */

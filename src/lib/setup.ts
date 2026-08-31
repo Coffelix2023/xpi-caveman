@@ -5,7 +5,7 @@
  */
 import { homedir } from "node:os";
 import { detectLegacySkills } from "./detect.js";
-import { readConfig, writeConfig } from "./state.js";
+import { readConfig, updateConfig } from "./state.js";
 
 /** select/notify 子集(真实 ExtensionContext 结构兼容)。 */
 export type SetupCtx = {
@@ -63,9 +63,8 @@ export async function runSetup(
   );
 
   if (picked === "共存让位(扩展不注入规则)") {
-    writeConfig(
+    updateConfig(
       {
-        ...config,
         coexist: true,
         setupDone: true,
       },
@@ -79,9 +78,8 @@ export async function runSetup(
   }
 
   if (picked === "本扩展接管(推荐)") {
-    writeConfig(
+    updateConfig(
       {
-        ...config,
         coexist: false,
         setupDone: true,
       },

@@ -10,9 +10,8 @@ import { runSetup } from "./lib/setup.js";
 import {
   ENTRY_CUSTOM_TYPE,
   effectiveDefaultMode,
-  readConfig,
   restoreMode,
-  writeConfig,
+  updateConfig,
 } from "./lib/state.js";
 import { aggregateByMode, renderStats } from "./lib/stats.js";
 
@@ -120,8 +119,7 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
           const result = aggregateByMode(ctx.sessionManager.getBranch(), startMode);
           ctx.ui.notify(renderStats(result));
         } else if (picked === "设为跨会话默认档") {
-          const ok = writeConfig({
-            coexist: readConfig().coexist,
+          const ok = updateConfig({
             defaultMode: mode,
           });
           ctx.ui.notify(
@@ -146,8 +144,7 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
           ctx.ui.notify(`用法: /xpi-caveman default <${MODES.join("|")}>`, "warning");
           return;
         }
-        const ok = writeConfig({
-          coexist: readConfig().coexist,
+        const ok = updateConfig({
           defaultMode: target,
         });
         ctx.ui.notify(

@@ -7,6 +7,7 @@ import {
   effectiveDefaultMode,
   readConfig,
   restoreMode,
+  updateConfig,
   writeConfig,
 } from "./state.js";
 
@@ -55,19 +56,21 @@ describe("configPath", () => {
 });
 
 describe("readConfig / writeConfig", () => {
-  it("roundtrip:写入后读回一致", () => {
+  it("roundtrip:写入后读回一致(含 setupDone)", () => {
     const { env, root } = tmpEnv();
     cleanup = root;
     writeConfig(
       {
         coexist: true,
         defaultMode: "lite-zh",
+        setupDone: true,
       },
       env,
     );
     expect(readConfig(env)).toEqual({
       coexist: true,
       defaultMode: "lite-zh",
+      setupDone: true,
     });
   });
 
@@ -121,11 +124,37 @@ describe("readConfig / writeConfig", () => {
       JSON.stringify({
         coexist: "yes",
         defaultMode: "wenyan-ultra",
+        setupDone: "yes",
       }),
     );
     expect(readConfig(env)).toEqual({
       coexist: false,
       defaultMode: "off",
+    });
+  });
+  it("updateConfig 补丁不丢 setupDone", () => {
+    const { env, root } = tmpEnv();
+    cleanup = root;
+    writeConfig(
+      {
+        coexist: false,
+        defaultMode: "off",
+        setupDone: true,
+      },
+      env,
+    );
+    expect(
+      updateConfig(
+        {
+          defaultMode: "lite-zh",
+        },
+        env,
+      ),
+    ).toBe(true);
+    expect(readConfig(env)).toEqual({
+      coexist: false,
+      defaultMode: "lite-zh",
+      setupDone: true,
     });
   });
 });
