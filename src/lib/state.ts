@@ -14,6 +14,8 @@ export const ENTRY_CUSTOM_TYPE = "caveman-mode";
 export interface CavemanConfig {
   coexist: boolean;
   defaultMode: CavemanMode;
+  /** setup 接管/共存已选择过(T5),避免重复弹面板。 */
+  setupDone?: boolean;
 }
 
 export const DEFAULT_CONFIG: CavemanConfig = {

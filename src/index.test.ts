@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { configPath } from "./lib/state.js";
 
 type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
 
@@ -50,6 +54,7 @@ function mockCtx(branch: EntryLike[] = []) {
     type?: string;
   }[] = [];
   return {
+    hasUI: true,
     mode: "tui" as const,
     sessionManager: {
       getBranch: () => branch,
@@ -66,20 +71,44 @@ function mockCtx(branch: EntryLike[] = []) {
     notifies,
   };
 }
-
 async function load() {
   const mod = await import("./index.js");
   return mod.default;
 }
-
 describe("xpiCaveman wiring", () => {
   let pi: ReturnType<typeof mockPi>;
+  let root: string | undefined;
+  const prevXdg = process.env.XDG_CONFIG_HOME;
   beforeEach(async () => {
+    // 隔离:config 读写指向临时目录,避免污染真实 ~/.config/xpi-caveman。
+    root = mkdtempSync(join(tmpdir(), "xpi-caveman-index-"));
+    process.env.XDG_CONFIG_HOME = root;
+    // 预置 setupDone:runSetup 提前返回,测试不依赖真实机器是否装了旧 skill。
+    mkdirSync(dirname(configPath()), {
+      recursive: true,
+    });
+    writeFileSync(
+      configPath(),
+      JSON.stringify({
+        coexist: false,
+        defaultMode: "off",
+        setupDone: true,
+      }),
+    );
     pi = mockPi();
     const register = await load();
     register(pi.api as never);
   });
-
+  afterEach(() => {
+    if (root)
+      rmSync(root, {
+        force: true,
+        recursive: true,
+      });
+    root = undefined;
+    if (prevXdg === undefined) delete process.env.XDG_CONFIG_HOME;
+    else process.env.XDG_CONFIG_HOME = prevXdg;
+  });
   function handler(name: string): Handler {
     const h = pi.hooks.get(name);
     expect(h, `hook ${name} registered`).toBeDefined();
@@ -206,5 +235,51 @@ describe("xpiCaveman wiring", () => {
     expect(calls.at(-1)?.[1]).toContain("FULL");
     await handler("agent_end")({}, ctx);
     expect(ctx.ui.setStatus.mock.calls.at(-1)?.[1]).toContain("○");
+  });
+
+  it("coexist: config coexist=true 时 before_agent_start 不注入(D8)", async () => {
+    writeFileSync(
+      configPath(),
+      JSON.stringify({
+        coexist: true,
+        defaultMode: "off",
+        setupDone: true,
+      }),
+    );
+    const ctx = mockCtx();
+    await handler("session_start")(
+      {
+        type: "session_start",
+      },
+      ctx,
+    );
+    await pi.commands.get("xpi-caveman")!.handler("full", ctx);
+    const result = await handler("before_agent_start")(
+      {
+        systemPrompt: "BASE",
+      },
+      ctx,
+    );
+    expect(result).toBeUndefined();
+  });
+
+  it("coexist: 选档 notify 如实提示规则未注入", async () => {
+    writeFileSync(
+      configPath(),
+      JSON.stringify({
+        coexist: true,
+        defaultMode: "off",
+        setupDone: true,
+      }),
+    );
+    const ctx = mockCtx();
+    await handler("session_start")(
+      {
+        type: "session_start",
+      },
+      ctx,
+    );
+    await pi.commands.get("xpi-caveman")!.handler("full", ctx);
+    expect(ctx.notifies.at(-1)?.message).toContain("共存模式");
   });
 });

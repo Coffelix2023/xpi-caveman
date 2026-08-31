@@ -1,12 +1,13 @@
 /**
  * xpi-caveman — Pi 扩展:六档压缩回复模式(PLAN v0.2)。
- * /xpi-caveman 面板 + before_agent_start 注入 + footer 芯片 + session 持久化。
- * T4 接线层:coexist(T5)与 stats(T6)后续任务接入。
+ * /xpi-caveman 面板 + before_agent_start 注入 + footer 芯片 + session 持久化 + setup 自检。
+ * stats(T6)待接入。
  */
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { type FooterCtx, mountFooter } from "./lib/footer.js";
 import { type CavemanMode, MODE_LABELS, MODES } from "./lib/modes.js";
 import { loadCavemanRules } from "./lib/rules.js";
+import { runSetup } from "./lib/setup.js";
 import {
   ENTRY_CUSTOM_TYPE,
   effectiveDefaultMode,
@@ -17,7 +18,6 @@ import {
 
 const VERSION = "0.2.0";
 
-/** 面板选项文案(与 MODES 顺序一致,后接操作项)。 */
 /** 面板选项文案(D5 单层平铺:6 档 + 分隔 + 2 操作)。● 标记当前档(select 类型无 preselect)。 */
 function panelOptions(current: CavemanMode): string[] {
   const modeItems = MODES.map(
@@ -45,6 +45,7 @@ function footerCtx(ctx: ExtensionContext): FooterCtx {
 export default function xpiCaveman(pi: ExtensionAPI): void {
   let mode: CavemanMode = "off";
   let isActive = false;
+  let coexist = false; // D8:共存让位 → 只做面板+指示灯,不注入规则。
   let footer: ReturnType<typeof mountFooter> | undefined;
   // 延迟接线信号:setMode 在 session_start 前也可能被调(命令先于事件),footer 就绪后补挂。
   let lastFooterCtx: FooterCtx | undefined;
@@ -61,25 +62,29 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
     }
   }
 
-  /** 选档的唯一入口:写 entry + 刷灯 + notify。coexist 拦截在调用方。 */
+  /** 选档的唯一入口:写 entry + 刷灯 + notify。coexist 时注入层拦截,此处如实提示。 */
   function applyMode(next: CavemanMode, ctx: ExtensionContext, quiet = false): void {
     mode = next;
     pi.appendEntry(ENTRY_CUSTOM_TYPE, {
       mode,
     });
     footer?.refresh();
-    if (!quiet) ctx.ui.notify(`caveman: ${MODE_LABELS[mode]}`);
+    if (quiet) return;
+    const hint = coexist && mode !== "off" ? "(共存模式:规则未注入)" : "";
+    ctx.ui.notify(`caveman: ${MODE_LABELS[mode]} ${hint}`.trim());
   }
 
   pi.on("session_start", async (_event, ctx) => {
     // D3/D9 优先级:session entry(含显式 off)> 跨会话默认(env > config)> off。
     mode = restoreMode(ctx.sessionManager.getBranch()) ?? effectiveDefaultMode();
+    // D8:检测旧 skill,未选择时弹 setup 面板;coexist 决定注入层是否拦截。
+    coexist = (await runSetup(ctx)).coexist;
     attachFooter(ctx);
   });
 
   pi.on("before_agent_start", async (event) => {
-    // D4:off 原样透传;非 off 在 systemPrompt 尾部追加档位规则(链式,多扩展叠加)。
-    if (mode === "off") return undefined;
+    // D4:off 原样透传;D8 共存让位时也不注入(只做面板+指示灯)。
+    if (mode === "off" || coexist) return undefined;
     const rules = loadCavemanRules(mode);
     return {
       systemPrompt: `${event.systemPrompt}\n\n${rules}`,
