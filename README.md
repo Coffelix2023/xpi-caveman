@@ -1,53 +1,50 @@
 # xpi-caveman
 
-> 六档压缩回复模式的 Pi 扩展:仅装本扩展即用(无需安装任何上游产物)。
+> Caveman for Pi: six reply-compression modes that cut agent verbosity, word by word, to save tokens.
+>
+> 中文说明见 [README.zh-CN.md](./README.zh-CN.md)
 
-基于 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee(MIT skill 部分)移植。
-"caveman" 是 Julius Brussee 的商标,本项目仅叙述性使用,不以其名命名发行版、不暗示赞助。
+A [Pi coding agent](https://github.com/badlogic/pi-mono) extension ported from the MIT-licensed skill portion of [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee. Everything runs locally in this extension — no upstream binaries required.
 
-## 功能
+> **Trademark notice:** "caveman" is a trademark of Julius Brussee. This project uses the name descriptively only (per the upstream [TRADEMARKS.md](https://github.com/JuliusBrussee/caveman/blob/main/TRADEMARKS.md)); it is not affiliated with or endorsed by the upstream author.
 
-- **六档模式体系**:英 `lite` / `full` / `ultra` + 中 `lite-zh` / `full-zh` + `off`(默认关闭,装了不等于开了)。
-- **`/xpi-caveman` 面板**:单层 select 平铺六档 + 「查看统计」 + 「设为跨会话默认档」;直接参数形式 `/xpi-caveman <mode>`、`status`、`default <mode>`。
-- **Footer 指示灯**:`ctx.ui.setStatus("caveman", …)` 多键共存(不顶掉其他扩展状态)。激活 `● 🗿 caveman LITE-ZH`;空闲 `○ 🗿 caveman idle`;off 时隐藏。
-- **真实 token 统计**:按会话 entry 时序分桶(切换档位后归入新桶),展示每档请求数 / output tokens / 费用。真实数据,无估算、无节省百分比;免费模型费用列显示 `—`。
-- **首次安装自检**:检测旧 caveman skill 目录(`~/.agents/skills/caveman`、`~/.claude/skills/caveman`),弹出接管/共存选择。**共存让位**后扩展只做面板+指示灯、不注入规则(避免双注入翻倍 token)。
+## Features
 
-## 安装
+- **Six-mode system**: English `lite` / `full` / `ultra` + Chinese `lite-zh` / `full-zh` + `off` (default off — installed doesn't mean enabled).
+- **`/xpi-caveman` panel**: single-layer select with all six modes + "View stats" + "Set cross-session default"; direct args `/xpi-caveman <mode>`, `status`, `default <mode>`.
+- **Footer indicator**: `ctx.ui.setStatus("caveman", …)` coexists with other extensions' status keys. Active `● 🗿 caveman LITE-ZH`; idle `○ 🗿 caveman idle`; hidden when off.
+- **Honest token stats**: bucketed by session entry order (a mode switch starts a new bucket), showing per-mode request count / output tokens / cost. Real data only — no estimates, no savings percentages; free models show `—` for cost.
+- **First-install check**: detects legacy caveman skill directories (`~/.agents/skills/caveman`, `~/.claude/skills/caveman`) and offers takeover/coexistence. In **coexistence** mode the extension only renders the panel + footer and injects nothing (avoids double-injection token waste).
 
-本扩展无构建步骤,Pi 直接加载 `src/index.ts`。
+## Install
+
+No build step — Pi loads `src/index.ts` directly.
 
 ```sh
-# 日常开发:软链到全局扩展目录,然后在 Pi 内 /reload 热载
+# Daily dev: symlink into the global extension dir, then /reload inside Pi
 ln -s "$(pwd)" ~/.pi/agent/extensions/xpi-caveman
 ```
 
-## 六档表
+## Mode table
 
-| 档位 | 行为 |
+| Mode | Behavior |
 | :--- | :--- |
-| `off` | 关闭(默认),正常回复 |
-| `lite` | 英文基础档:删 filler/hedging/pleasantries,保留冠词与完整句子 |
-| `full` | 英文完全档:删冠词/客套/委婉,允许片段,用短同义词 |
-| `ultra` | 英文极限档:full 之上,一行能说完不说第二行;禁自造缩写、禁因果箭头 |
-| `lite-zh` | 中文基础档:删 hedging/客套/filler,保留完整句子与虚词语法功能;默认中文回复 |
-| `full-zh` | 中文完全档:lite-zh 之上再删冗余连接词、允许片段、用短同义词;不删承载语法角色的虚词 |
+| `off` | Disabled (default), normal replies |
+| `lite` | English base: drop filler/hedging/pleasantries, keep articles and full sentences |
+| `full` | English full: drop articles/pleasantries/hedges, allow fragments, prefer short synonyms |
+| `ultra` | English extreme: full-plus — one line when one line works; no invented abbreviations, no causal arrows |
+| `lite-zh` | Chinese base: drop hedging/pleasantries/filler, keep full sentences and particles' grammatical roles; replies in Chinese |
+| `full-zh` | Chinese full: lite-zh plus dropping redundant connectives, fragments allowed, short synonyms; particles with grammatical roles are kept |
 
-所有档位**保留**技术术语、代码块、文件路径、URL、错误字符串、精确 API 名;禁自造缩写、禁因果箭头(`→`)。
+All modes **preserve** technical terms, code blocks, file paths, URLs, error strings, exact API names; invented abbreviations and causal arrows (`→`) are banned.
 
-## 持久化
+## Persistence
 
-- 会话内:写入 `caveman-mode` custom entry,`session_start` 时从分支倒序恢复(旧 `fx-cn` entry 自动映射为 `lite-zh`)。
-- 跨会话默认档:`~/.config/xpi-caveman/config.json`(尊重 `XDG_CONFIG_HOME`);环境变量 `XPI_CAVEMAN_DEFAULT_MODE` 覆盖。
-- 优先级:session entry(含显式 off)> env > config.defaultMode > off。
+- Within a session: writes a `caveman-mode` custom entry, restored at `session_start` by scanning branches newest-first (legacy `fx-cn` entries map to `lite-zh`).
+- Across sessions: `~/.config/xpi-caveman/config.json` (respects `XDG_CONFIG_HOME`); env var `XPI_CAVEMAN_DEFAULT_MODE` overrides.
+- Priority: session entry (incl. explicit off) > env > config.defaultMode > off.
 
-## 上游署名与许可
-
-- 英文档规则文本移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee(MIT 许可的 skill 部分)。
-- 本项目 MIT 许可(MIT → MIT 移植规则文本);**不引入、不链接、不分发**上游 BSL-1.1 产物(caveman CLI / engine / proxy),用户无需安装任何上游二进制。
-- 商标注记:"caveman" 为 Julius Brussee 商标,仅叙述性使用。
-
-## 开发
+## Development
 
 ```bash
 pnpm typecheck        # tsc --noEmit
@@ -55,4 +52,11 @@ pnpm -w run lint      # biome check .
 pnpm test             # vitest run
 ```
 
-提交前三条全绿。详见 `AGENTS.md`。
+All three green before committing. See `AGENTS.md` for details.
+
+## License & attribution
+
+- Licensed under [MIT](./LICENSE).
+- English rule texts are ported from the **MIT-licensed skill portion** of [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee (MIT → MIT). The upstream BSL-1.1 products (caveman CLI / engine / proxy) are **not imported, linked, or distributed** here.
+- The upstream caveman project (skill, docs, design) inspired this port — thank you, [@JuliusBrussee](https://github.com/JuliusBrussee).
+- Trademark notice: "caveman" is a trademark of Julius Brussee, used here descriptively only; not affiliated with or endorsed by the upstream author.
