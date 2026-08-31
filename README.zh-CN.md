@@ -18,11 +18,8 @@
 
 ## 安装
 
-本扩展无构建步骤,Pi 直接加载 `src/index.ts`。
-
-```sh
-# 日常开发:软链到全局扩展目录,然后在 Pi 内 /reload 热载
-ln -s "$(pwd)" ~/.pi/agent/extensions/xpi-caveman
+```bash
+pi install git:github.com/Coffelix2023/xpi-caveman
 ```
 
 ## 六档表

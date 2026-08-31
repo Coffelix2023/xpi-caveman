@@ -18,11 +18,10 @@ A [Pi coding agent](https://github.com/badlogic/pi-mono) extension ported from t
 
 ## Install
 
-No build step — Pi loads `src/index.ts` directly.
+## Install
 
-```sh
-# Daily dev: symlink into the global extension dir, then /reload inside Pi
-ln -s "$(pwd)" ~/.pi/agent/extensions/xpi-caveman
+```bash
+pi install git:github.com/Coffelix2023/xpi-caveman
 ```
 
 ## Mode table
