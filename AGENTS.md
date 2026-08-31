@@ -3,7 +3,10 @@
 > 本文件是本仓库内 AI Agent 与人类开发者的**唯一事实来源 (Single Source of Truth)**。
 > 所有变更必须可解释、可回滚。当口头约定、历史代码与本文件冲突时,**以本文件为准**。
 
-<!-- TODO: 定义本扩展职责边界(这个扩展做什么、不做什么) -->
+## 职责边界
+
+- **做**:六档压缩回复模式(off/lite/full/ultra/lite-zh/full-zh)、`/xpi-caveman` 面板、footer 指示灯、真实 token 分桶统计、旧 skill 冲突自检(接管/共存)。
+- **不做**:不引入 caveman CLI 等 BSL 产物、不修改 Pi system prompt(仅 before_agent_start 追加规则)、不写用户全局配置(接管仅提示自禁)、不做 Web 交付。
 
 ## 0. TL;DR(Agent 执行守则)
 
