@@ -244,6 +244,44 @@ describe("xpiCaveman wiring", () => {
     await handler("agent_end")({}, ctx);
     expect(ctx.ui.setStatus.mock.calls.at(-1)?.[1]).toContain("○");
   });
+  it("session_shutdown: 清状态键并释放句柄,下个会话重挂", async () => {
+    const ctx = mockCtx();
+    await handler("session_start")(
+      {
+        type: "session_start",
+      },
+      ctx,
+    );
+    await pi.commands.get("xpi-caveman")!.handler("full", ctx);
+    await handler("session_shutdown")(
+      {
+        reason: "quit",
+        type: "session_shutdown",
+      },
+      ctx,
+    );
+    expect(ctx.ui.setStatus.mock.calls.at(-1)).toEqual([
+      "caveman",
+      undefined,
+    ]);
+    const next = mockCtx();
+    // 新会话按 config 默认档恢复;给 full 才能验证重挂后的状态文本。
+    writeFileSync(
+      configPath(),
+      JSON.stringify({
+        coexist: false,
+        defaultMode: "full",
+        setupDone: true,
+      }),
+    );
+    await handler("session_start")(
+      {
+        type: "session_start",
+      },
+      next,
+    );
+    expect(next.ui.setStatus.mock.calls.at(-1)?.[1]).toContain("caveman idle");
+  });
 
   it("coexist: config coexist=true 时 before_agent_start 不注入(D8)", async () => {
     writeFileSync(

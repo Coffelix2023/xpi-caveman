@@ -34,13 +34,11 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
   let startMode: CavemanMode = "off"; // D7:会话起始档(恢复值),stats 分桶兜底。
   let coexist = false; // D8:共存让位 → 只做面板+指示灯,不注入规则。
   let footer: ReturnType<typeof mountFooter> | undefined;
-  // 延迟接线信号:setMode 在 session_start 前也可能被调(命令先于事件),footer 就绪后补挂。
-  let lastFooterCtx: FooterCtx | undefined;
 
   function attachFooter(ctx: ExtensionContext): void {
-    lastFooterCtx = footerCtx(ctx);
+    // ctx.ui.setStatus 的闭包绑的是 InteractiveMode 实例(跨会话同一),句柄可复用。
     if (!footer) {
-      footer = mountFooter(lastFooterCtx, {
+      footer = mountFooter(footerCtx(ctx), {
         isActive: () => isActive,
         mode: () => mode,
       });
@@ -68,6 +66,13 @@ export default function xpiCaveman(pi: ExtensionAPI): void {
     // D8:检测旧 skill,未选择时弹 setup 面板;coexist 决定注入层是否拦截。
     coexist = (await runSetup(ctx)).coexist;
     attachFooter(ctx);
+  });
+  pi.on("session_shutdown", async () => {
+    // 会话级收尾(quit/reload/new/resume/fork)。不用 agent_settled:那是 run 级
+    // 事件,每次模型往返都触发,会在会话中途把灯和状态清掉。
+    isActive = false;
+    footer?.unmount();
+    footer = undefined;
   });
 
   pi.on("before_agent_start", async (event) => {
