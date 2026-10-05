@@ -4,7 +4,7 @@
 >
 > 中文说明见 [README.zh-CN.md](./README.zh-CN.md)
 
-A [Pi coding agent](https://github.com/badlogic/pi-mono) extension ported from the MIT-licensed skill portion of [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee. Everything runs locally in this extension — no upstream binaries required.
+A [Pi coding agent](https://github.com/badlogic/pi-mono) extension ported from the caveman skill of [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee (a pre-3.0.0, MIT-licensed release). Everything runs locally in this extension — no upstream binaries required.
 
 > **Trademark notice:** "caveman" is a trademark of Julius Brussee. This project uses the name descriptively only (per the upstream [TRADEMARKS.md](https://github.com/JuliusBrussee/caveman/blob/main/TRADEMARKS.md)); it is not affiliated with or endorsed by the upstream author.
 
@@ -54,6 +54,6 @@ All three green before committing. See `AGENTS.md` for details.
 ## License & attribution
 
 - Licensed under [MIT](./LICENSE).
-- English rule texts are ported from the **MIT-licensed skill portion** of [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee (MIT → MIT). The upstream BSL-1.1 products (caveman CLI / engine / proxy) are **not imported, linked, or distributed** here.
+- English rule texts are ported from the **skill of [caveman](https://github.com/JuliusBrussee/caveman)** by Julius Brussee, taken from a pre-3.0.0 release where that skill was MIT-licensed (MIT → MIT). Upstream relicensed the whole repository to Apache-2.0 in 3.0.0, but states that releases published before 3.0.0 keep the terms they shipped with — the text ported here predates that change. Upstream products (caveman CLI / engine / proxy) are **not imported, linked, or distributed** here.
 - The upstream caveman project (skill, docs, design) inspired this port — thank you, [@JuliusBrussee](https://github.com/JuliusBrussee).
 - Trademark notice: "caveman" is a trademark of Julius Brussee, used here descriptively only; not affiliated with or endorsed by the upstream author.

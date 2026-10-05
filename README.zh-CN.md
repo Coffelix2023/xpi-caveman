@@ -4,7 +4,7 @@
 >
 > English README: [README.md](./README.md)
 
-[Pi Coding Agent](https://github.com/badlogic/pi-mono) 扩展,移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee(MIT 许可的 skill 部分)。全部逻辑在本扩展内本地运行,无需安装任何上游产物。
+[Pi Coding Agent](https://github.com/badlogic/pi-mono) 扩展,移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee 的 skill(取自 3.0.0 之前、该 skill 仍为 MIT 许可的版本)。全部逻辑在本扩展内本地运行,无需安装任何上游产物。
 
 > **商标注记**:"caveman" 是 Julius Brussee 的商标,本项目仅叙述性使用(遵循上游 [TRADEMARKS.md](https://github.com/JuliusBrussee/caveman/blob/main/TRADEMARKS.md));与上游作者无隶属或背书关系。
 
@@ -54,6 +54,6 @@ pnpm test             # vitest run
 ## 许可与鸣谢
 
 - 本项目以 [MIT](./LICENSE) 许可发布。
-- 英文档规则文本移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee(**MIT 许可的 skill 部分**,MIT → MIT);上游 BSL-1.1 产物(caveman CLI / engine / proxy)**不引入、不链接、不分发**。
+- 英文档规则文本移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee 的 skill,取自 **3.0.0 之前该 skill 为 MIT 许可的版本**(MIT → MIT)。上游自 3.0.0 起将整个仓库改为 Apache-2.0,但同时声明 3.0.0 之前发布的版本保留其发布时的条款 —— 本仓移植的文本早于该变更。上游产物(caveman CLI / engine / proxy)**不引入、不链接、不分发**。
 - 上游 caveman 项目(skill、文档与设计)启发了本次移植 —— 感谢 [@JuliusBrussee](https://github.com/JuliusBrussee)。
 - 商标注记:"caveman" 为 Julius Brussee 商标,本项目仅叙述性使用,与上游作者无隶属或背书关系。
