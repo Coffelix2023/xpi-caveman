@@ -1,9 +1,9 @@
 /**
  * 六档规则文本(PLAN v0.2 D1/D2/D4)。
- * 英文档:移植上游 MIT skill(caveman,JuliusBrussee 系 .ref/fx-caveman 演进版),
- * ultra 采用其修正定义——禁造缩写、禁用箭头(tokenizer 不省 token)。
+ * 英文档:移植上游 caveman skill(JuliusBrussee;取自 3.0.0 之前的 MIT 版本),
+ * 经 fx-caveman 演进。ultra 采用其修正定义——禁造缩写、禁用箭头(tokenizer 不省 token)。
  * 中文档:按 D2 语义撰写(不删承载语法角色的虚词)。
- * 许可:MIT → MIT;上游署名见 README(T7)。
+ * 许可:MIT → MIT(上游 3.0.0 起改 Apache-2.0,不影响此前文本);署名见 README。
  */
 import type { CavemanMode } from "./modes.js";
 
