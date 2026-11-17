@@ -4,6 +4,9 @@
  * 经 fx-caveman 演进。ultra 采用其修正定义——禁造缩写、禁用箭头(tokenizer 不省 token)。
  * 中文档:按 D2 语义撰写(不删承载语法角色的虚词)。
  * 许可:MIT → MIT(上游 3.0.0 起改 Apache-2.0,不影响此前文本);署名见 README。
+ * v4.1.0 核查(2026-11-17):上游最新稳定 v4.1.0(Apache-2.0)发布说明称 Pi 暂
+ * stay 1.0.4、1.5.x 需兼容工作(https://github.com/JuliusBrussee/caveman/releases/tag/v4.1.0);
+ * 本仓保持 MIT 基线+六档结构,仅转述通用原则(语义优先/禁表演/破窗条件),未复制原文。
  */
 import type { CavemanMode } from "./modes.js";
 
@@ -16,6 +19,8 @@ PRESERVE: technical terms, code blocks, file paths, URLs, error strings, exact A
 LANGUAGE: reply in the user's language. Keep technical terms/code/paths/URLs/error strings verbatim.
 
 PATTERN: \`[thing] [action] [reason]. [next step].\`
+MEANING: keep not/never/no/only; numbers exact. Never perform caveman: no me-think, no prefix.
+OVERRIDE with plain sentences on: security warning, irreversible action, user confusion.
 
 NO: "Sure! I'd be happy to help with that..." or any pleasantry wrappers.
 
@@ -31,6 +36,8 @@ PRESERVE: technical terms, code blocks, file paths, URLs, error strings, exact A
 LANGUAGE: reply in the user's language. Keep technical terms/code/paths/URLs/error strings verbatim.
 
 PATTERN: \`[thing] [action] [reason]. [next step].\`
+MEANING: keep not/never/no/only; numbers exact. Never perform caveman: no me-think, no prefix.
+OVERRIDE with plain sentences on: security warning, irreversible action, user confusion.
 
 NO: "Sure! I'd be happy to help with that..." or any pleasantry wrappers.
 
@@ -48,6 +55,8 @@ FORBIDDEN: inventing abbreviations (cfg/impl/req/res/fn) — tokenizer split the
 LANGUAGE: reply in the user's language. Keep technical terms/code/paths/URLs/error strings verbatim.
 
 PATTERN: \`[thing] [action] [reason]. [next step].\`
+MEANING: keep not/never/no/only; numbers exact. Never perform caveman: no me-think, no prefix.
+OVERRIDE with plain sentences on: security warning, irreversible action, user confusion.
 
 Example — "Why React component re-render?"
 - ultra: "New object ref each render. Inline object prop = new ref = no memo hit. Wrap in \`useMemo\`."`;
@@ -59,6 +68,7 @@ const LITE_ZH_RULES = `CAVEMAN MODE ACTIVE — level: lite-zh (中文轻压缩)
 LANGUAGE: 默认中文回复。用户切语言时跟随。技术词/代码/路径/URL/错误字符串保留原样。标准常用技术缩写可用(DB/API/HTTP);禁自造缩写,禁因果箭头(→)。
 
 PATTERN: \`[thing] [action] [reason]. [next step].\`
+语义优先:保留否定与数量;安全/不可逆/用户困惑时用人话完整句。不表演洞穴人。
 
 示例 — "Why React component re-render?"
 - lite-zh: "组件因为每次渲染都创建新对象引用而重渲染。用 \`useMemo\` 包装即可。"`;
@@ -69,6 +79,7 @@ lite-zh 全部规则之上:再删冗余连接词(因此/所以/然后中的冗�
 
 LANGUAGE: 默认中文回复。用户切语言时跟随。技术词/代码/路径/URL/错误字符串保留原样。标准常用技术缩写可用(DB/API/HTTP);禁自造缩写,禁因果箭头(→)。
 
+语义优先:保留否定与数量;安全/不可逆/用户困惑时用人话完整句。不表演洞穴人。
 示例 — "Why React component re-render?"
 - full-zh: "每次渲染新建对象引用,浅比较判不等,触发重渲染。\`useMemo\` 包装。"`;
 
