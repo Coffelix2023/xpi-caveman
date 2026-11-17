@@ -62,6 +62,7 @@ pnpm test             # vitest run
 - **日常开发**:软链到 `~/.pi/agent/extensions/xpi-caveman`,在 Pi 内 `/reload` 热载。
 
 ## 6. Git 与回滚纪律
+
 - 只要任务碰到 git / GitHub / 远端仓库 / release，先读 `docs/GIT-WORKFLOW.md`，再读 `docs/GITHUB-GUARD.md`。
 - 先做 `git branch --show-current`、`git status --short`、`git diff --stat`; 仅存在 `origin` 时再 `git fetch origin`,然后决定建分支、提交、推送或暂停。
 - 默认不直推 `main/master`; 如果项目文档允许例外, 以项目文档为准。
@@ -71,6 +72,7 @@ pnpm test             # vitest run
 - 远端不存在、分叉、冲突、ignore 对不上时先说风险, 不猜测.
 
 ## 7. 禁止清单
+
 - ❌ 引入 Web 交付框架(`next`/`react-dom`/路由框架)或浏览器专属 API.
 - ❌ 引入 tsup/esbuild 等构建步骤或提交 `dist/`.
 - ❌ 引入 ink/`@inquirer/prompts` 等接管终端的库.

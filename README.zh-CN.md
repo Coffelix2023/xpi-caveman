@@ -24,13 +24,13 @@ pi install git:github.com/Coffelix2023/xpi-caveman
 
 ## 六档表
 
-| 档位 | 行为 |
-| :--- | :--- |
-| `off` | 关闭(默认),正常回复 |
-| `lite` | 英文基础档:删 filler/hedging/pleasantries,保留冠词与完整句子 |
-| `full` | 英文完全档:删冠词/客套/委婉,允许片段,用短同义词 |
-| `ultra` | 英文极限档:full 之上,一行能说完不说第二行;禁自造缩写、禁因果箭头 |
-| `lite-zh` | 中文基础档:删 hedging/客套/filler,保留完整句子与虚词语法功能;默认中文回复 |
+| 档位      | 行为                                                                               |
+| :-------- | :--------------------------------------------------------------------------------- |
+| `off`     | 关闭(默认),正常回复                                                                |
+| `lite`    | 英文基础档:删 filler/hedging/pleasantries,保留冠词与完整句子                       |
+| `full`    | 英文完全档:删冠词/客套/委婉,允许片段,用短同义词                                    |
+| `ultra`   | 英文极限档:full 之上,一行能说完不说第二行;禁自造缩写、禁因果箭头                   |
+| `lite-zh` | 中文基础档:删 hedging/客套/filler,保留完整句子与虚词语法功能;默认中文回复          |
 | `full-zh` | 中文完全档:lite-zh 之上再删冗余连接词、允许片段、用短同义词;不删承载语法角色的虚词 |
 
 所有档位**保留**技术术语、代码块、文件路径、URL、错误字符串、精确 API 名;禁自造缩写、禁因果箭头(`→`)。
@@ -54,6 +54,6 @@ pnpm test             # vitest run
 ## 许可与鸣谢
 
 - 本项目以 [MIT](./LICENSE) 许可发布。
-- 英文档规则文本移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee 的 skill,取自 **3.0.0 之前该 skill 为 MIT 许可的版本**(MIT → MIT)。上游自 3.0.0 起将整个仓库改为 Apache-2.0,但同时声明 3.0.0 之前发布的版本保留其发布时的条款 —— 本仓移植的文本早于该变更。上游产物(caveman CLI / engine / proxy)**不引入、不链接、不分发**。
+- 英文档规则文本移植自 [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee 的 skill,取自 **3.0.0 之前该 skill 为 MIT 许可的版本**(MIT → MIT)。上游自 3.0.0 起将整个仓库改为 Apache-2.0,但同时声明 3.0.0 之前发布的版本保留其发布时的条款 —— 本仓移植的文本早于该变更。上游产物(caveman CLI / engine / proxy)**不引入、不链接、不分发**。2026-11-17 与上游 v4.1.0(Apache-2.0)核对后，以本仓独立措辞补入语义优先/禁表演/破窗三条通用原则，未复制原文。
 - 上游 caveman 项目(skill、文档与设计)启发了本次移植 —— 感谢 [@JuliusBrussee](https://github.com/JuliusBrussee)。
 - 商标注记:"caveman" 为 Julius Brussee 商标,本项目仅叙述性使用,与上游作者无隶属或背书关系。

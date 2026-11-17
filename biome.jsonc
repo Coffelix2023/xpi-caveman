@@ -68,7 +68,10 @@
       "!src/components/assistant-ui", //排除 assistant-ui
       "!src/components/animate-ui", //排除 animate-ui
       "!src/components/reui", //排除 reui
-      "!src/components/magicui" //排除 magicui
+      "!src/components/magicui", //排除 magicui
+      "!**/.claude", //生成物(ecc/skills/homunculus，非标准YAML)
+      "!**/.agents", //生成物(仓库skill镜像)
+      "!**/.codex" //生成物
     ]
   },
 
@@ -150,25 +153,8 @@
         "noNodejsModules": "off"
       },
       "nursery": {
-        "useSortedClasses": {
-          //针对 tailwindcss的实例类排序
-          "fix": "safe",
-          "level": "on",
-          "options": {
-            "attributes": [
-              "className",
-              "class"
-            ],
-            "functions": [
-              "cva",
-              "cx",
-              "clsx",
-              "cn",
-              "tw",
-              "tw.*"
-            ]
-          }
-        }
+        //Biome 2.6由useSortedClasses改名(v4语义,无手动options)
+        "useTailwindSortedClasses": "on"
       },
       //安全防御
       "security": {
